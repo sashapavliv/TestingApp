@@ -26,5 +26,5 @@ public interface UserDao extends JpaRepository<User,Integer> {
     List<User> findAllByEmail(String email);
 
     @Query("SELECT u.email from User u where u.email like :email")
-    String findEmail(String email);
+    List<String> findEmail(String email);
 }

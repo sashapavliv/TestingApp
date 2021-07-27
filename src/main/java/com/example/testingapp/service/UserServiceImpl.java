@@ -14,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,13 +45,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         user.setEnabled(false);
         final String code = RandomStringUtils.randomNumeric(6);
         user.setVerificationCode(code);
-        //Bad logic
-        // хотів написати перевірку, щоб на 1 емейл можна було зареєструвати лише одного користувача
-//        if(userDao.findAllByEmail(userDto.getEmail()).stream().anyMatch(email -> userDao.findEmail(userDto.getEmail()).equals(user.getEmail()))){
-//            userDao.save(user);
-//        }else{
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with this email already exist, please enter other email");
-//        }
+        if(userDao.findAllByEmail(userDto.getEmail()).stream().noneMatch(email -> userDao.findEmail(userDto.getEmail()).contains(user.getEmail()))){
+            userDao.save(user);
+        }else{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with this email already exist, please enter other email");
+        }
         userDao.save(user);
         mailService.sendVerificationCode(user);
         return String.format("User %s is registered", user.getUsername());
